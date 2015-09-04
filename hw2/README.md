@@ -21,3 +21,5 @@ delimiters.txt
 links.txt
 
 titles.txt
+
+league.txt
