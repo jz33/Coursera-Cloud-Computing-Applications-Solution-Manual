@@ -7,8 +7,8 @@ import backtype.storm.tuple.*;
 import backtype.storm.task.TopologyContext;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.*;
-
 /*
 TBD
 */
@@ -21,22 +21,14 @@ public class TopNFinderBolt extends BaseBasicBolt {
     /**
     * @Values : String, Integer
     */
-    private ConcurrentSkipListSet<Values> set;
-
+    private ConcurrentMap<String, Integer> map;
 
     public TopNFinderBolt(int N) {
         this.N = N;
     }
 
     public void prepare(Map stormConf, TopologyContext context){
-        set = new ConcurrentSkipListSet<Values>(new Comparator<Values>(){
-
-            @Override
-            public int compare(Values o1, Values o2) {
-                return o1.get(1).compareTo(o2.get(1));
-            }
-            
-        });
+        map = new ConcurrentHashMap<String, Integer>();
     }
     /**
     *@tuple : (String, Integer)
@@ -46,8 +38,14 @@ public class TopNFinderBolt extends BaseBasicBolt {
         String s = tuple.getString(0);
         Integer i = tuple.getInteger(1);
         
-        set.add(new Values(s,i));
-        
+        Integer val = map.get(s);
+        if(val == null){
+            map.put(s,i); 
+        }
+        else{
+            map.put(s,i + val);
+        }
+
         //reports the top N words periodically
         if (System.currentTimeMillis() - lastReportTime >= intervalToReport) {
             collector.emit(new Values(printMap()));
@@ -64,12 +62,18 @@ public class TopNFinderBolt extends BaseBasicBolt {
         StringBuffer sb = new StringBuffer();
         sb.append("top-words = [ ");
         
-        Vector<Values> vec = new Vector<Values>();
-        vec.addAll(set);
+        Vector<Entry<String, Integer>> vec = new Vector<Entry<String, Integer>>(map.entrySet());
+        
+        Collections.sort(vec, new Comparator<Entry<String, Integer>>(){
+            
+            public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2){
+                return o1.getValue().compareTo(o2.getValue());
+            }
+        });
         
         int left = Math.max(vec.size() - N, 0);
         for(int i = left ; i < vec.size(); i++){
-            sb.append("(" + vec.get(i).get(0) + " , " + vec.get(i).get(1).toString() + ") , ");
+            sb.append("(" + vec.get(i).getKey() + " , " + vec.get(i).getValue().toString() + ") , ");
         }
         
         int lastCommaIndex = sb.lastIndexOf(",");
