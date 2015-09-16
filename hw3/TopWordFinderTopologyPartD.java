@@ -31,7 +31,7 @@ public class TopWordFinderTopologyPartD {
         builder.setBolt("split", new SplitSentenceBolt(), 4).shuffleGrouping("spout");
         builder.setBolt("normalize", new NormalizerBolt(), 4).shuffleGrouping("split");
         builder.setBolt("count", new WordCountBolt(), 4).fieldsGrouping("normalize", new Fields("word"));
-        builder.setBolt("top-N", new TopNFinderBolt(N)).globalGrouping("count");
+        builder.setBolt("top-n", new TopNFinderBolt(N)).globalGrouping("count");
         
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("word-count", config, builder.createTopology());
