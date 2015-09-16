@@ -9,18 +9,13 @@ import backtype.storm.task.TopologyContext;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
-/*
-TBD
-*/
+
 public class TopNFinderBolt extends BaseBasicBolt {
 
     private long intervalToReport = 20;
     private long lastReportTime = System.currentTimeMillis();
     private int N;
 
-    /**
-    * @Values : String, Integer
-    */
     private ConcurrentMap<String, Integer> map;
 
     public TopNFinderBolt(int N) {
