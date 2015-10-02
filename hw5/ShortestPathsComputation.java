@@ -6,7 +6,6 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import java.io.IOException;
 /*
-
 0 - 1
  \ /
   2
@@ -24,10 +23,10 @@ public class ShortestPathsComputation extends BasicComputation<
     
     /*
         Determine source vertex.
-        This is used at "-ca ShortestPathsComputation.sourceId=3"
+        This is used at "-ca SimpleShortestPathsVertex.sourceId=3"
     */
     public static final LongConfOption SOURCE_ID =
-        new LongConfOption("ShortestPathsComputation.sourceId", 1,
+        new LongConfOption("SimpleShortestPathsVertex.sourceId", 1,
         "The shortest paths id");
 
     public boolean isSource(Vertex<IntWritable, ?, ?> vertex){
